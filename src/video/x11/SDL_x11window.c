@@ -1853,24 +1853,29 @@ int X11_SetWindowMouseGrab(SDL_VideoDevice *_this, SDL_Window *window, SDL_bool 
         }
 
         /* Try to grab the mouse */
-        if (!data->videodata->broken_pointer_grab) {
-            const unsigned int mask = ButtonPressMask | ButtonReleaseMask | PointerMotionMask | FocusChangeMask;
-            int attempts;
-            int result = 0;
+        if(!data->videodata->broken_pointer_grab)
+        {
+            const unsigned int  mask    =ButtonPressMask | ButtonReleaseMask
+                                        | PointerMotionMask | FocusChangeMask;
+            int                 attempts;
+            int                 result  =0;
 
-            /* Try for up to 5000ms (5s) to grab. If it still fails, stop trying. */
-            for (attempts = 0; attempts < 100; attempts++) {
-                result = X11_XGrabPointer(display, data->xwindow, False, mask, GrabModeAsync,
+            //try a few times and then give up
+            for(attempts = 0; attempts < 5; attempts++)
+            {
+                result  =X11_XGrabPointer(display, data->xwindow, False, mask, GrabModeAsync,
                                           GrabModeAsync, data->xwindow, None, CurrentTime);
-                if (result == GrabSuccess) {
-                    data->mouse_grabbed = SDL_TRUE;
+                if(result == GrabSuccess)
+                {
+                    data->mouse_grabbed =SDL_TRUE;
                     break;
                 }
-                SDL_Delay(50);
+                SDL_Delay(5);
             }
 
-            if (result != GrabSuccess) {
-                data->videodata->broken_pointer_grab = SDL_TRUE; /* don't try again. */
+            if(result != GrabSuccess)
+            {
+                data->videodata->broken_pointer_grab    =SDL_TRUE; /* don't try again. */
             }
         }
 
